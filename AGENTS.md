@@ -12,7 +12,19 @@ The specs are normative and live in the sibling repo `../remai-central-specs`. D
 - `docs/api/openapi.yaml`: the exact API contract. `src/api/types.ts` mirrors it, so keep the two in sync.
 - `openspec/changes/archive/2026-10-19-add-notion-core/tasks.md` group 6 lists the frontend tasks. Spec owners tick tasks off; agents don't.
 
-Once the change is archived, the specs move to `openspec/specs/<capability>/spec.md`.
+- `openspec/changes/archive/2026-10-19-adopt-flutter-and-serverless/design.md` D7 and `specs/platform-hosting/spec.md`: Cloudflare Pages hosting (HTTPS, deep-link fallback, security and cache headers). Its `tasks.md` group 4 lists the frontend hosting tasks.
+
+Once a change is archived, its specs move to `openspec/specs/<capability>/spec.md`.
+
+## Hosting (Cloudflare Pages)
+
+See README "Hosting" for the full runbook. The rules for changes:
+
+- **Headers come from `scripts/write-headers.mjs`**, which writes `dist/_headers` after `vite build`. Never commit a hand-written `public/_headers`. Change the generator and its tests (`scripts/write-headers.test.mjs`) instead.
+- **CSP**: scripts, styles, images and fonts from `'self'` only, and `connect-src 'self'` + the origin of `VITE_API_URL`. Don't add `'unsafe-inline'`, `'unsafe-eval'`, CDNs or inline `<script>`/`<style>` to `index.html`. React `style={…}` props and `el.style.x = …` are fine (CSSOM). `setAttribute('style', …)` and `style="…"` in HTML are blocked. A new external origin (fonts, analytics) needs a design change first.
+- **Deep links** rely on the Pages SPA fallback. Don't add `public/404.html` (the build fails) or a catch-all `_redirects` rule (Pages ignores `/* /index.html 200`, and `/* / 200` shadows `/assets/*`).
+- **Cache**: everything is `no-cache` except `/assets/*` (immutable). Only put content-hashed files in `assets/`. Files in `public/` are served from the root with `no-cache`.
+- **Local check**: `npm run build` then `npx wrangler@4.147.0 pages dev dist --port 8788`, and `curl -I` a deep link and an asset. Never run `wrangler pages deploy` from an agent session. Deploys are done by a human with a Cloudflare account.
 
 ## Conventions
 

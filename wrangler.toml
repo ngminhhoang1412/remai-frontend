@@ -1,0 +1,6 @@
+# Cloudflare Pages project (design D7 of adopt-flutter-and-serverless).
+# Static site only: no Pages Functions. Deploy with `npx wrangler pages deploy dist --project-name remai`
+# after `npm run build`, or through Git integration (see README.md).
+name = "remai"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-10-01"

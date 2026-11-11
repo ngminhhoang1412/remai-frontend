@@ -32,6 +32,15 @@ export default defineConfig([
     },
   },
   {
+    // Node build scripts (e.g. scripts/write-headers.mjs).
+    files: ['scripts/**/*.mjs'],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      ecmaVersion: 2023,
+      globals: globals.node,
+    },
+  },
+  {
     files: ['src/**/*.test.{ts,tsx}', 'src/test/**'],
     rules: {
       'react-refresh/only-export-components': 'off',
